@@ -1,0 +1,406 @@
+{
+	"info": {
+		"name": "FastAPI BitNet Orchestrator",
+		"description": "API collection for managing and interacting with BitNet llama server & CLI instances.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Server Management",
+			"item": [
+				{
+					"name": "Estimate Max BitNet Servers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estimate?per_server_gb=1.5",
+							"host": ["{{baseUrl}}"],
+							"path": ["estimate"],
+							"query": [
+								{
+									"key": "per_server_gb",
+									"value": "1.5",
+									"description": "Estimated RAM usage per server in GB"
+								}
+							]
+						},
+						"description": "Estimate the maximum number of BitNet server instances based on RAM and CPU threads."
+					}
+				},
+				{
+					"name": "Initialize Server",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/initialize-server?threads=2&ctx_size=2048&port=8081&system_prompt=You are a helpful assistant.&n_predict=4096&temperature=0.8",
+							"host": ["{{baseUrl}}"],
+							"path": ["initialize-server"],
+							"query": [
+								{ "key": "threads", "value": "2", "description": "Number of threads" },
+								{ "key": "ctx_size", "value": "2048", "description": "Context size in tokens" },
+								{ "key": "port", "value": "8081", "description": "Port for the server instance" },
+								{ "key": "system_prompt", "value": "You are a helpful assistant.", "description": "System prompt" },
+								{ "key": "n_predict", "value": "4096", "description": "Max tokens to predict" },
+								{ "key": "temperature", "value": "0.8", "description": "Sampling temperature" }
+							]
+						},
+						"description": "Initialize and start a single BitNet llama-server process."
+					}
+				},
+				{
+					"name": "Shutdown Server",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/shutdown-server?port=8081",
+							"host": ["{{baseUrl}}"],
+							"path": ["shutdown-server"],
+							"query": [
+								{ "key": "port", "value": "8081", "description": "Port of the server to shut down" }
+							]
+						},
+						"description": "Shut down a specific BitNet server instance by port."
+					}
+				},
+				{
+					"name": "Get Server Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/server-status?port=8081",
+							"host": ["{{baseUrl}}"],
+							"path": ["server-status"],
+							"query": [
+								{ "key": "port", "value": "8081", "description": "Port of the server to check" }
+							]
+						},
+						"description": "Get the status of a specific BitNet server instance."
+					}
+				}
+			]
+		},
+		{
+			"name": "Batch Server Management",
+			"item": [
+				{
+					"name": "Initialize Batch Servers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"servers\": [\n    {\n      \"threads\": 1,\n      \"ctx_size\": 2048,\n      \"port\": 8081,\n      \"system_prompt\": \"You are a helpful assistant.\",\n      \"n_predict\": 256,\n      \"temperature\": 0.8\n    },\n    {\n      \"threads\": 1,\n      \"ctx_size\": 2048,\n      \"port\": 8082,\n      \"system_prompt\": \"You are a coding assistant.\",\n      \"n_predict\": 512,\n      \"temperature\": 0.6\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/initialize-batch-servers",
+							"host": ["{{baseUrl}}"],
+							"path": ["initialize-batch-servers"]
+						},
+						"description": "Initialize multiple BitNet server instances in one request."
+					}
+				},
+				{
+					"name": "Shutdown Batch Servers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ports\": [8081, 8082]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/shutdown-batch-servers",
+							"host": ["{{baseUrl}}"],
+							"path": ["shutdown-batch-servers"]
+						},
+						"description": "Shut down multiple BitNet server instances."
+					}
+				},
+				{
+					"name": "Batch Server Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ports\": [8081, 8082]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/batch-server-status",
+							"host": ["{{baseUrl}}"],
+							"path": ["batch-server-status"]
+						},
+						"description": "Get the status of multiple BitNet server instances."
+					}
+				}
+			]
+		},
+		{
+			"name": "Interaction",
+			"item": [
+				{
+					"name": "Chat with BitNet Server",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Hello, what can you do?\",\n  \"port\": 8081,\n  \"n_predict\": 256,\n  \"temperature\": 0.8\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat",
+							"host": ["{{baseUrl}}"],
+							"path": ["chat"]
+						},
+						"description": "Send a chat message to a running BitNet server instance."
+					}
+				},
+				{
+					"name": "Multichat with BitNet Servers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"requests\": [\n    {\n      \"message\": \"What is 2+2?\",\n      \"port\": 8081,\n      \"n_predict\": 128,\n      \"temperature\": 0.5\n    },\n    {\n      \"message\": \"Tell me a joke.\",\n      \"port\": 8082,\n      \"n_predict\": 256,\n      \"temperature\": 1.0\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/multichat",
+							"host": ["{{baseUrl}}"],
+							"path": ["multichat"]
+						},
+						"description": "Send multiple chat messages to BitNet servers concurrently."
+					}
+				}
+			]
+		},
+		{
+			"name": "Llama CLI Management",
+			"item": [
+				{
+					"name": "Initialize Llama CLI Session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cli_alias\": \"bitnet_001\",\n  \"threads\": 2,\n  \"ctx_size\": 2048,\n  \"n_predict\": 256,\n  \"temperature\": 0.8,\n  \"system_prompt\": \"You are a helpful assistant.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/initialize-llama-cli",
+							"host": ["{{baseUrl}}"],
+							"path": ["initialize-llama-cli"]
+						},
+						"description": "Start a persistent llama-cli process in conversational mode."
+					}
+				},
+				{
+					"name": "Initialize Batch Llama CLI Sessions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"requests\": [\n    {\n      \"cli_alias\": \"session_a\",\n      \"threads\": 1,\n      \"ctx_size\": 2048,\n      \"n_predict\": 256,\n      \"temperature\": 0.8\n    },\n    {\n      \"cli_alias\": \"session_b\",\n      \"threads\": 1,\n      \"ctx_size\": 2048,\n      \"n_predict\": 512,\n      \"temperature\": 0.6\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/initialize-batch-llama-cli",
+							"host": ["{{baseUrl}}"],
+							"path": ["initialize-batch-llama-cli"]
+						},
+						"description": "Start multiple persistent llama-cli sessions in one request."
+					}
+				},
+				{
+					"name": "Shutdown Llama CLI Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/shutdown-llama-cli/bitnet_001",
+							"host": ["{{baseUrl}}"],
+							"path": ["shutdown-llama-cli", "bitnet_001"]
+						},
+						"description": "Stop a specific persistent llama-cli session by alias."
+					}
+				},
+				{
+					"name": "Shutdown Batch Llama CLI Sessions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"aliases\": [\"session_a\", \"session_b\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/shutdown-batch-llama-cli",
+							"host": ["{{baseUrl}}"],
+							"path": ["shutdown-batch-llama-cli"]
+						},
+						"description": "Stop multiple persistent llama-cli sessions."
+					}
+				},
+				{
+					"name": "Get Llama CLI Session Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/llama-cli-status/bitnet_001",
+							"host": ["{{baseUrl}}"],
+							"path": ["llama-cli-status", "bitnet_001"]
+						},
+						"description": "Get the status of a specific llama-cli session."
+					}
+				},
+				{
+					"name": "Batch Llama CLI Session Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"aliases\": [\"session_a\", \"session_b\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/batch-llama-cli-status",
+							"host": ["{{baseUrl}}"],
+							"path": ["batch-llama-cli-status"]
+						},
+						"description": "Get the status of multiple llama-cli sessions."
+					}
+				}
+			]
+		},
+		{
+			"name": "Llama CLI Interaction",
+			"item": [
+				{
+					"name": "Chat with Llama CLI Session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cli_alias\": \"bitnet_001\",\n  \"prompt\": \"What is the capital of France?\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat-llama-cli",
+							"host": ["{{baseUrl}}"],
+							"path": ["chat-llama-cli"]
+						},
+						"description": "Send a prompt to a running persistent llama-cli session."
+					}
+				},
+				{
+					"name": "Batch Chat with Llama CLI Sessions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"requests\": [\n    {\n      \"cli_alias\": \"session_a\",\n      \"prompt\": \"What is 2+2?\"\n    },\n    {\n      \"cli_alias\": \"session_b\",\n      \"prompt\": \"Tell me a joke.\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/batch-chat-llama-cli",
+							"host": ["{{baseUrl}}"],
+							"path": ["batch-chat-llama-cli"]
+						},
+						"description": "Send multiple chat prompts to llama-cli sessions concurrently."
+					}
+				}
+			]
+		},
+		{
+			"name": "Utilities",
+			"item": [
+				{
+					"name": "Run Benchmark",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/benchmark?model=BitNet_b1_58_2B_4T_ggml_model_i2_s_gguf&n_token=128&threads=2&n_prompt=32",
+							"host": ["{{baseUrl}}"],
+							"path": ["benchmark"],
+							"query": [
+								{ "key": "model", "value": "BitNet_b1_58_2B_4T_ggml_model_i2_s_gguf", "description": "Model enum value" },
+								{ "key": "n_token", "value": "128", "description": "Number of tokens to process" },
+								{ "key": "threads", "value": "2", "description": "Number of threads" },
+								{ "key": "n_prompt", "value": "32", "description": "Number of prompt tokens" }
+							]
+						},
+						"description": "Run a performance benchmark on a BitNet model."
+					}
+				},
+				{
+					"name": "Calculate Perplexity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/perplexity?model=BitNet_b1_58_2B_4T_ggml_model_i2_s_gguf&prompt=The quick brown fox jumps over the lazy dog and then runs across the field to find more food for the winter season ahead&threads=2&ctx_size=10&ppl_stride=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["perplexity"],
+							"query": [
+								{ "key": "model", "value": "BitNet_b1_58_2B_4T_ggml_model_i2_s_gguf", "description": "Model enum value" },
+								{ "key": "prompt", "value": "The quick brown fox jumps over the lazy dog and then runs across the field to find more food for the winter season ahead", "description": "Input text" },
+								{ "key": "threads", "value": "2" },
+								{ "key": "ctx_size", "value": "10" },
+								{ "key": "ppl_stride", "value": "0" }
+							]
+						},
+						"description": "Calculate perplexity of text using a BitNet model."
+					}
+				},
+				{
+					"name": "Get Model Sizes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/model-sizes",
+							"host": ["{{baseUrl}}"],
+							"path": ["model-sizes"]
+						},
+						"description": "Get file sizes of all available .gguf model files."
+					}
+				}
+			]
+		}
+	]
+}
